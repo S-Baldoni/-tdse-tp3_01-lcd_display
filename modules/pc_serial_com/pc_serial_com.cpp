@@ -5,15 +5,13 @@
 
 #include "pc_serial_com.h"
 
-#include "siren.h"
-#include "fire_alarm.h"
+
 #include "code.h"
 #include "date_and_time.h"
-#include "temperature_sensor.h"
-#include "gas_sensor.h"
-#include "event_log.h"
+
 
 //=====[Declaration of private defines]========================================
+
 
 //=====[Declaration of private data types]=====================================
 
@@ -49,16 +47,13 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComCommandUpdate( char receivedChar );
 
 static void availableCommands();
-static void commandShowCurrentAlarmState();
-static void commandShowCurrentGasDetectorState();
-static void commandShowCurrentOverTemperatureDetectorState();
-static void commandEnterCodeSequence();
+
+//static void commandEnterCodeSequence();
 static void commandEnterNewCode();
-static void commandShowCurrentTemperatureInCelsius();
-static void commandShowCurrentTemperatureInFahrenheit();
+
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
-static void commandShowStoredEvents();
+
 
 //=====[Implementations of public functions]===================================
 
@@ -156,16 +151,13 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
 static void pcSerialComCommandUpdate( char receivedChar )
 {
     switch (receivedChar) {
-        case '1': commandShowCurrentAlarmState(); break;
-        case '2': commandShowCurrentGasDetectorState(); break;
-        case '3': commandShowCurrentOverTemperatureDetectorState(); break;
-        case '4': commandEnterCodeSequence(); break;
+
+        //case '4': commandEnterCodeSequence(); break;
         case '5': commandEnterNewCode(); break;
-        case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
-        case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
+
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
-        case 'e': case 'E': commandShowStoredEvents(); break;
+
         default: availableCommands(); break;
     } 
 }
@@ -186,45 +178,7 @@ static void availableCommands()
     pcSerialComStringWrite( "\r\n" );
 }
 
-static void commandShowCurrentAlarmState()
-{
-    if ( sirenStateRead() ) {
-        pcSerialComStringWrite( "The alarm is activated\r\n");
-    } else {
-        pcSerialComStringWrite( "The alarm is not activated\r\n");
-    }
-}
 
-static void commandShowCurrentGasDetectorState()
-{
-    if ( gasDetectorStateRead() ) {
-        pcSerialComStringWrite( "Gas is being detected\r\n");
-    } else {
-        pcSerialComStringWrite( "Gas is not being detected\r\n");
-    }    
-}
-
-static void commandShowCurrentOverTemperatureDetectorState()
-{
-    if ( overTemperatureDetectorStateRead() ) {
-        pcSerialComStringWrite( "Temperature is above the maximum level\r\n");
-    } else {
-        pcSerialComStringWrite( "Temperature is below the maximum level\r\n");
-    }
-}
-
-static void commandEnterCodeSequence()
-{
-    if( sirenStateRead() ) {
-        pcSerialComStringWrite( "Please enter the four digits numeric code " );
-        pcSerialComStringWrite( "to deactivate the alarm: " );
-        pcSerialComMode = PC_SERIAL_GET_CODE;
-        codeComplete = false;
-        numberOfCodeChars = 0;
-    } else {
-        pcSerialComStringWrite( "Alarm is not activated.\r\n" );
-    }
-}
 
 static void commandEnterNewCode()
 {
@@ -235,21 +189,6 @@ static void commandEnterNewCode()
 
 }
 
-static void commandShowCurrentTemperatureInCelsius()
-{
-    char str[100] = "";
-    sprintf ( str, "Temperature: %.2f \xB0 C\r\n",
-                    temperatureSensorReadCelsius() );
-    pcSerialComStringWrite( str );  
-}
-
-static void commandShowCurrentTemperatureInFahrenheit()
-{
-    char str[100] = "";
-    sprintf ( str, "Temperature: %.2f \xB0 C\r\n",
-                    temperatureSensorReadFahrenheit() );
-    pcSerialComStringWrite( str );  
-}
 
 static void commandSetDateAndTime()
 {
@@ -298,13 +237,3 @@ static void commandShowDateAndTime()
     pcSerialComStringWrite("\r\n");
 }
 
-static void commandShowStoredEvents()
-{
-    char str[EVENT_STR_LENGTH] = "";
-    int i;
-    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogRead( i, str );
-        pcSerialComStringWrite( str );   
-        pcSerialComStringWrite( "\r\n" );                    
-    }
-}

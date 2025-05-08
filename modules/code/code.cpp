@@ -8,9 +8,7 @@
 #include "user_interface.h"
 #include "pc_serial_com.h"
 #include "date_and_time.h"
-#include "temperature_sensor.h"
-#include "gas_sensor.h"
-#include "matrix_keypad.h"
+
 
 //=====[Declaration of private defines]========================================
 
